@@ -13,6 +13,9 @@ public class ConnectSQL {
 
 	public ConnectSQL() {
 	}
+	public ConnectSQL(String databaseName, String user, String pass) {
+		setConnection(databaseName, user, pass);
+	}
 	
 	public void setConnection(String databaseName, String user, String pass) {
 		try {

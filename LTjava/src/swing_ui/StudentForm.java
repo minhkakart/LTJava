@@ -17,6 +17,8 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 
 import oop.bai2.Student;
@@ -32,10 +34,7 @@ public class StudentForm extends JFrame {
 	ImageIcon successIcon;
 	ImageIcon failedIcon;
 
-	ConnectSQL connect = new ConnectSQL();
-	
-	Vector<String> tableHeader;
-	DefaultTableModel tableModel;
+	ConnectSQL connect;
 
 	JPanel upPanel;
 	JPanel downPanel;
@@ -45,14 +44,7 @@ public class StudentForm extends JFrame {
 	JPanel eastPanel;
 	JPanel northPanel;
 
-	JScrollPane scrollPane;
-	JTable table;
-
-	JButton btnCreate;
-	JButton btnEdit;
-	JButton btnDelete;
-	JButton btnClear;
-
+	JLabel lbID;
 	JLabel lbCode;
 	JLabel lbName;
 	JLabel lbAddress;
@@ -63,12 +55,23 @@ public class StudentForm extends JFrame {
 	JComboBox<String> txtAddress;
 	JTextField txtPoint;
 
+	JButton btnCreate;
+	JButton btnEdit;
+	JButton btnDelete;
+	JButton btnClear;
+
+	JTable table;
+	JScrollPane scrollPane;
+	Vector<String> tableHeader;
+	DefaultTableModel tableModel;
+	ListSelectionModel listSelectionModel;
+
 	private final int WIDTH = 720;
 	private final int HEIGHT = 500;
 
 	public StudentForm() {
 		this.setIconImage(new ImageIcon("src/ei-ico.jpg").getImage());
-		this.setLayout(new GridLayout(0, 1, 10, 10));
+		this.setLayout(new GridLayout(0, 1));
 
 		initComponents();
 
@@ -82,68 +85,46 @@ public class StudentForm extends JFrame {
 
 	private void initComponents() {
 		// Thay đổi thông tin kết nối tại đây
+		connect = new ConnectSQL();
 		connect.setConnection("jdbc:mysql://localhost:3306/swing_ui", "root", "");
-		
+
 		// Tạo icon
 		successIcon = new ImageIcon("src/success-green-icon.jpg");
 		failedIcon = new ImageIcon("src/failed-icon.png");
-		successIcon.setImage(successIcon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH));
-		failedIcon.setImage(failedIcon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH));
 
-		// Tạo table header
-		tableHeader = new Vector<String>();
-		tableHeader.add("Code");
-		tableHeader.add("Name");
-		tableHeader.add("Address");
-		tableHeader.add("Point");
-		
-		// Tạo table model
-		tableModel = new DefaultTableModel(tableHeader, 0);
-		loadData();
-		
 		// Tạo các panel layout
 		upPanel = new JPanel(new BorderLayout(10, 10));
 		downPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
 		CRUDPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 100, 10));
 		infoPanel = new JPanel(new GridLayout(0, 2, 10, 15));
-		westPanel = new Panel("src/ei.jpg", 200, 165);
-		eastPanel = new Panel("src/ei.jpg", 200, 165);
+		westPanel = new Panel("src/ei.jpg", 200, 170, -50, -20);
+		eastPanel = new Panel("src/focalors.jpg", 200, 170, 0, 120);
 		northPanel = new JPanel();
-		scrollPane = new JScrollPane();
-		table = new JTable(tableModel);
-		table.setPreferredScrollableViewportSize(new Dimension(600, 150));
+
+		// Tạo các label
+		lbID = new JLabel();
+		lbID.setVisible(false);
+		lbCode = new JLabel("Code");
+		lbName = new JLabel("Name");
+		lbAddress = new JLabel("Address");
+		lbPoint = new JLabel("Point");
+
+		// Tạo các textfield
+		txtCode = new JTextField();
+		txtName = new JTextField();
+		txtAddress = new JComboBox<String>();
+		txtPoint = new JTextField("0");
 
 		// Tạo các button
 		btnCreate = new JButton("Create");
 		btnEdit = new JButton("Edit");
 		btnDelete = new JButton("Delete");
 		btnClear = new JButton("Clear");
-		btnCreate.setFocusable(false);
-		btnEdit.setFocusable(false);
-		btnDelete.setFocusable(false);
-		btnClear.setFocusable(false);
 
-		// Thêm các button vào CRUDPanel
-		CRUDPanel.setPreferredSize(new Dimension(720, 50));
-		CRUDPanel.add(btnCreate);
-		CRUDPanel.add(btnEdit);
-		CRUDPanel.add(btnDelete);
-		CRUDPanel.add(btnClear);
-		upPanel.add(CRUDPanel, BorderLayout.SOUTH);
+		///////////////////////////////////////////////
 
-		// Tạo các label và textfield
-		lbCode = new JLabel("Code");
-		lbName = new JLabel("Name");
-		lbAddress = new JLabel("Address");
-		lbPoint = new JLabel("Point");
-
-		txtCode = new JTextField();
-		txtName = new JTextField();
-		txtAddress = new JComboBox<String>();
-		txtPoint = new JTextField("0");
-		
-		initAddress();
-
+		///////// Layout upPanel /////////
+		// Center
 		infoPanel.add(lbCode);
 		infoPanel.add(txtCode);
 		infoPanel.add(lbName);
@@ -152,8 +133,57 @@ public class StudentForm extends JFrame {
 		infoPanel.add(txtAddress);
 		infoPanel.add(lbPoint);
 		infoPanel.add(txtPoint);
-		
-		// Căn chỉnh vị trí của các label
+
+		// North
+		northPanel.add(lbID);
+
+		// South
+		CRUDPanel.add(btnCreate);
+		CRUDPanel.add(btnEdit);
+		CRUDPanel.add(btnDelete);
+		CRUDPanel.add(btnClear);
+		// East
+		// West
+		// Add to upPanel
+		upPanel.add(infoPanel, BorderLayout.CENTER);
+		upPanel.add(westPanel, BorderLayout.EAST);
+		upPanel.add(eastPanel, BorderLayout.WEST);
+		upPanel.add(northPanel, BorderLayout.NORTH);
+		upPanel.add(CRUDPanel, BorderLayout.SOUTH);
+
+		///////// Layout downPanel /////////
+		// Xây dựng table
+		tableHeader = new Vector<String>();
+		scrollPane = new JScrollPane();
+		tableHeader.add("ID");
+		tableHeader.add("Code");
+		tableHeader.add("Name");
+		tableHeader.add("Address");
+		tableHeader.add("Point");
+		newTable();
+		downPanel.add(scrollPane);
+
+		///////////////////////////////////////////////
+
+		///////// Chỉnh sửa giao diện các components /////////
+		// Icons
+		successIcon.setImage(successIcon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH));
+		failedIcon.setImage(failedIcon.getImage().getScaledInstance(40, 40, java.awt.Image.SCALE_SMOOTH));
+
+		// Panels
+		infoPanel.setPreferredSize(new Dimension(0, 100));
+		northPanel.setPreferredSize(new Dimension(0, 10));
+		CRUDPanel.setPreferredSize(new Dimension(720, 50));
+		eastPanel.setPreferredSize(new Dimension(200, 0));
+		westPanel.setPreferredSize(new Dimension(200, 0));
+
+		upPanel.setBackground(Color.RED);
+		downPanel.setBackground(Color.BLUE);
+		CRUDPanel.setBackground(Color.GREEN);
+		infoPanel.setBackground(Color.YELLOW);
+		northPanel.setBackground(Color.MAGENTA);
+
+		// Labels
 		lbCode.setHorizontalAlignment(JLabel.CENTER);
 		lbCode.setVerticalAlignment(JLabel.CENTER);
 		lbName.setHorizontalAlignment(JLabel.CENTER);
@@ -162,125 +192,61 @@ public class StudentForm extends JFrame {
 		lbAddress.setVerticalAlignment(JLabel.CENTER);
 		lbPoint.setHorizontalAlignment(JLabel.CENTER);
 		lbPoint.setVerticalAlignment(JLabel.CENTER);
-		
-		// Thêm infoPanel vào upPanel ở vị trí CENTER
-		infoPanel.setPreferredSize(new Dimension(0, 100));
-		upPanel.add(infoPanel, BorderLayout.CENTER);
 
-		// Thêm các panel phụ vào upPanel
-		westPanel.setPreferredSize(new Dimension(200, 0));
-		eastPanel.setPreferredSize(new Dimension(200, 0));
-		northPanel.setPreferredSize(new Dimension(0, 10));
-		upPanel.add(westPanel, BorderLayout.EAST);
-		upPanel.add(eastPanel, BorderLayout.WEST);
-		upPanel.add(northPanel, BorderLayout.NORTH);
-
-		// Thêm table vào scrollPane và scrollPane vào downPanel
-		scrollPane.setViewportView(table);
-		downPanel.add(scrollPane);
+		// Buttons
+		btnCreate.setFocusable(false);
+		btnEdit.setFocusable(false);
+		btnDelete.setFocusable(false);
+		btnClear.setFocusable(false);
 		
-		// Set background cho các panel
-		upPanel.setBackground(Color.RED);
-		downPanel.setBackground(Color.BLUE);
-		CRUDPanel.setBackground(Color.GREEN);
-		infoPanel.setBackground(Color.YELLOW);
-		northPanel.setBackground(Color.MAGENTA);
+		// Table
+		table.setPreferredScrollableViewportSize(new Dimension(600, 150));
+		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		///////////////////////////////////////////////
+
+		// Thêm 2 panel chính vào frame
+		this.add(upPanel);
+		this.add(downPanel);
+
+		///////////////////////////////////////////////
+
+		///////// Tạo dữ liệu /////////
+		// Tạo dữ liệu cho combobox
+		initAddress();
+
+		///////////////////////////////////////////////
+
+		///////// Xử lí sự kiện /////////
+		// Set table listener
+		setTableListener();
+
+		// Xử lý sự kiện cho button Create
+		btnCreate.addActionListener(e -> {
+			createStudent();
+		});
+
+		// Xử lý sự kiện cho button Edit
+		btnEdit.addActionListener(e -> {
+			editStudent();
+		});
+
+		// Xử lý sự kiện cho button Delete
+		btnDelete.addActionListener(e -> {
+			int option = JOptionPane.showConfirmDialog(null, "Are you sure to delete?", "Confirm",
+					JOptionPane.YES_NO_OPTION);
+			if (option == JOptionPane.YES_OPTION) {
+				deleteStudent();
+			}
+		});
 
 		// Xử lý sự kiện cho button Clear
 		btnClear.addActionListener(e -> {
 			clearTextFields();
 		});
 
-		// Xử lý sự kiện cho button Create
-		btnCreate.addActionListener(e -> {
-			String code = txtCode.getText();
-			String name = txtName.getText();
-			String address = txtAddress.getSelectedItem().toString();
-			double point = Double.parseDouble(txtPoint.getText());
-
-			Student student = new Student(code, name, address, point);
-			if (student.createStudent()) {
-				JOptionPane.showMessageDialog(null, "Create success", "Success", JOptionPane.INFORMATION_MESSAGE,
-						successIcon);
-				clearTableModel();
-				loadData();
-				clearTextFields();
-			} else {
-				JOptionPane.showMessageDialog(null, "Create failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
-			}
-		});
-		
-		// Xử lý sự kiện cho button Edit
-		btnEdit.addActionListener(e -> {
-			String code = txtCode.getText();
-			String name = txtName.getText();
-			String address = txtAddress.getSelectedItem().toString();
-			double point = Double.parseDouble(txtPoint.getText());
-
-			Student student = new Student(code, name, address, point);
-			if (student.createStudent()) {
-				JOptionPane.showMessageDialog(null, "Edit success", "Success", JOptionPane.INFORMATION_MESSAGE,
-                        successIcon);
-				clearTableModel();
-				loadData();
-				clearTextFields();
-			} else {
-				JOptionPane.showMessageDialog(null, "Edit failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
-			}
-		});
-		
-		// Xử lý sự kiện cho button Delete
-		btnDelete.addActionListener(e -> {
-			int option = JOptionPane.showConfirmDialog(null, "Are you sure to delete?", "Confirm", JOptionPane.YES_NO_OPTION);
-			if (option == JOptionPane.YES_OPTION) {
-				deleteStudent();
-			}
-		});
-		
-		// Thêm 2 panel chính vào frame
-		this.add(upPanel);
-		this.add(downPanel);
-
-	}
-	
-	// Load data from database to table
-	private void loadData() {
-		ResultSet res = connect.getAllData("students");
-		try {
-			if (res == null) {
-				JOptionPane.showMessageDialog(null, "Error: ResultSet is null");
-				return;
-			} else {
-				while (res.next()) {
-					Vector<String> row = new Vector<String>();
-					row.add(res.getString(2));
-					row.add(res.getString(3));
-					row.add(res.getString(4));
-					row.add(res.getString(5));
-					tableModel.addRow(row);
-				}
-			}
-
-		} catch (Exception e) {
-			JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
-		}
-	}
-	
-	// Clear table model
-	private void clearTableModel() {
-		tableModel.setRowCount(0);
 	}
 
-	// Clear text fields
-	private void clearTextFields() {
-		txtCode.setText("");
-		txtName.setText("");
-		txtAddress.setSelectedIndex(0);
-		txtPoint.setText("0");
-
-		txtCode.requestFocus();
-	}
-	
 	// Add address to combobox
 	private void initAddress() {
 		txtAddress.addItem("Ha Noi");
@@ -299,23 +265,132 @@ public class StudentForm extends JFrame {
 		txtAddress.addItem("Quang Nam");
 		txtAddress.addItem("Quang Ngai");
 	}
-	
-	// Delete student
-	private void deleteStudent() {
+
+	// Load data from database to table
+	private void loadTableData() {
+		ResultSet res = connect.getAllData("students");
+		try {
+			if (res == null) {
+				JOptionPane.showMessageDialog(null, "Error: ResultSet is null");
+				return;
+			} else {
+				while (res.next()) {
+					Vector<String> row = new Vector<String>();
+					row.add(res.getString(1));
+					row.add(res.getString(2));
+					row.add(res.getString(3));
+					row.add(res.getString(4));
+					row.add(res.getString(5));
+					tableModel.addRow(row);
+				}
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
+		}
+	}
+
+	// Clear table and load new data to table
+	private void newTable() {
+		tableModel = new DefaultTableModel(tableHeader, 0);
+		table = new JTable(tableModel);
+		loadTableData();
+		table.setPreferredScrollableViewportSize(new Dimension(600, 150));
+		scrollPane.setViewportView(table);
+	}
+
+	// Create new student
+	private void createStudent() {
 		String code = txtCode.getText();
 		String name = txtName.getText();
 		String address = txtAddress.getSelectedItem().toString();
 		double point = Double.parseDouble(txtPoint.getText());
 
 		Student student = new Student(code, name, address, point);
-		if (student.deleteStudent()) {
-			JOptionPane.showMessageDialog(null, "Delete success", "Success", JOptionPane.INFORMATION_MESSAGE,
-                    successIcon	);
-			clearTableModel();
-			loadData();
+		if (student.createStudent()) {
+			JOptionPane.showMessageDialog(null, "Create success", "Success", JOptionPane.INFORMATION_MESSAGE,
+					successIcon);
+			clearTableListener();
+			newTable();
 			clearTextFields();
+			setTableListener();
+		} else {
+			JOptionPane.showMessageDialog(null, "Create failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
+		}
+	}
+
+	// Edit student
+	private void editStudent() {
+		String id = lbID.getText();
+		String code = txtCode.getText();
+		String name = txtName.getText();
+		String address = txtAddress.getSelectedItem().toString();
+		double point = Double.parseDouble(txtPoint.getText());
+
+		Student student = new Student(code, name, address, point);
+		if (student.editStudent(id)) {
+			JOptionPane.showMessageDialog(null, "Edit success", "Success", JOptionPane.INFORMATION_MESSAGE,
+					successIcon);
+			clearTableListener();
+			newTable();
+			clearTextFields();
+			setTableListener();
+		} else {
+			JOptionPane.showMessageDialog(null, "Edit failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
+		}
+	}
+
+	// Delete student
+	private void deleteStudent() {
+		String id = lbID.getText();
+		if (Student.deleteStudent(id)) {
+			JOptionPane.showMessageDialog(null, "Delete success", "Success", JOptionPane.INFORMATION_MESSAGE,
+					successIcon);
+			clearTableListener();
+			newTable();
+			clearTextFields();
+			setTableListener();
 		} else {
 			JOptionPane.showMessageDialog(null, "Delete failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
+		}
+	}
+
+	// Clear text fields
+	private void clearTextFields() {
+		lbID.setText("");
+
+		txtCode.setText("");
+		txtName.setText("");
+		txtAddress.setSelectedIndex(0);
+		txtPoint.setText("0");
+
+		txtCode.requestFocus();
+	}
+
+///////// Combo xử lí sự kiện cho table /////////
+
+	private void clearTableListener() {
+		listSelectionModel.removeListSelectionListener(table);
+	}
+
+	private void setTableListener() {
+		listSelectionModel = table.getSelectionModel();
+		listSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+
+		// Add event cho table
+		listSelectionModel.addListSelectionListener(e -> {
+			listSelectionModelHandler(e);
+		});
+	}
+
+	private void listSelectionModelHandler(ListSelectionEvent e) {
+		if (!e.getValueIsAdjusting()) {
+			int row = table.getSelectedRow();
+			lbID.setText(table.getValueAt(row, 0).toString());
+			txtCode.setText(table.getValueAt(row, 1).toString());
+			txtName.setText(table.getValueAt(row, 2).toString());
+			txtAddress.setSelectedItem(table.getValueAt(row, 3).toString());
+			txtPoint.setText(table.getValueAt(row, 4).toString());
 		}
 	}
 

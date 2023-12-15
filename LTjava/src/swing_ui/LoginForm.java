@@ -103,7 +103,6 @@ public class LoginForm extends JFrame {
             ResultSet res = stmt.executeQuery();
             
 			if (res.next()) {
-//				JOptionPane.showMessageDialog(this, "Login success!");
 				this.dispose();
 				new StudentForm();
 			} else {

@@ -11,7 +11,7 @@ public class Frame extends JFrame {
 	
 	public Frame() {
 		
-		this.add(new Panel());
+		this.add(new Panel("src/ei-ico.jpg", 100, 100));
 		this.pack();
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		this.setLocationRelativeTo(null);

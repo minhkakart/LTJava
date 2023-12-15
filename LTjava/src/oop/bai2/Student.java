@@ -1,10 +1,18 @@
 package oop.bai2;
 
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
+
+import swing_ui.ConnectSQL;
+
 public class Student {
 	private String code;
 	private String name;
 	private String birthPlace;
 	private double point;
+	
+	private static ConnectSQL connection = new ConnectSQL("jdbc:mysql://localhost:3306/swing_ui", "root", "");
 	
 	public Student() {
 		code = "";
@@ -57,21 +65,71 @@ public class Student {
 	}
 
 	public boolean createStudent() {
-		System.out.println("Create student");
-		System.out.println(this.toString());
-		return true;
+		Connection con = connection.getConnection();
+		try {
+			PreparedStatement stmt = con
+					.prepareStatement("INSERT INTO students(code, name, birthPlace, point) VALUES (?, ?, ?, ?)");
+			stmt.setString(1, this.code);
+			stmt.setString(2, this.name);
+			stmt.setString(3, this.birthPlace);
+			stmt.setDouble(4, this.point);
+			int res = stmt.executeUpdate();
+			if (res > 0) {
+				System.out.println("Insert success");
+				return true;
+			} else {
+				System.out.println("Insert failed");
+				return false;
+			}
+		} catch (SQLException e) {
+//			System.out.println("SQL Exception " + e);
+			e.printStackTrace();
+			return false;
+		}
+		
 	}
 
-	public boolean editStudent(String code) {
-		System.out.println("Edit student");
-		System.out.println(this.toString());
-		return true;
+	public boolean editStudent(String id) {
+		Connection con = connection.getConnection();
+		try {
+			PreparedStatement stmt = con.prepareStatement(
+					"UPDATE students SET code = ?, name = ?, birthPlace = ?, point = ? WHERE id = ?");
+			stmt.setString(1, this.code);
+			stmt.setString(2, this.name);
+			stmt.setString(3, this.birthPlace);
+			stmt.setDouble(4, this.point);
+			stmt.setString(5, id);
+			int res = stmt.executeUpdate();
+			if (res > 0) {
+				System.out.println("Update success");
+				return true;
+			} else {
+				System.out.println("Update failed");
+				return false;
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL Exception " + e);
+			return false;
+		}
 	}
 
-	public boolean deleteStudent() {
-		System.out.println("Delete student");
-		System.out.println(this.toString());
-		return true;
+	public static boolean deleteStudent( String id) {
+		Connection con = connection.getConnection();
+		try {
+			PreparedStatement stmt = con.prepareStatement("DELETE FROM students WHERE id = ?");
+			stmt.setString(1, id);
+			int res = stmt.executeUpdate();
+			if (res > 0) {
+				System.out.println("Delete success");
+				return true;
+			} else {
+				System.out.println("Delete failed");
+				return false;
+			}
+		} catch (SQLException e) {
+			System.out.println("SQL Exception " + e);
+			return false;
+		}
 	}
 	
 }
