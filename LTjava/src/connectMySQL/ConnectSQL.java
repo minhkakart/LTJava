@@ -1,4 +1,4 @@
-package swing_ui;
+package connectMySQL;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -13,10 +13,11 @@ public class ConnectSQL {
 
 	public ConnectSQL() {
 	}
+
 	public ConnectSQL(String databaseName, String user, String pass) {
 		setConnection(databaseName, user, pass);
 	}
-	
+
 	public void setConnection(String databaseName, String user, String pass) {
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
@@ -44,7 +45,7 @@ public class ConnectSQL {
 		}
 		return res;
 	}
-	
+
 	public ResultSet getDataByID(String table, String id) {
 		ResultSet res = null;
 		try {
@@ -57,7 +58,7 @@ public class ConnectSQL {
 		}
 		return res;
 	}
-	
+
 	public ResultSet findDataByField(String table, String field, String value) {
 		ResultSet res = null;
 		try {

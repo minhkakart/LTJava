@@ -6,6 +6,8 @@ import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.sql.ResultSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Vector;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -21,7 +23,9 @@ import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.table.DefaultTableModel;
 
+import connectMySQL.ConnectSQL;
 import oop.bai2.Student;
+import validator.Validator;
 import drag.Panel;
 
 public class StudentForm extends JFrame {
@@ -35,6 +39,9 @@ public class StudentForm extends JFrame {
 	ImageIcon failedIcon;
 
 	ConnectSQL connect;
+
+	Validator validator;
+	Map<String, String> rules;
 
 	JPanel upPanel;
 	JPanel downPanel;
@@ -92,6 +99,10 @@ public class StudentForm extends JFrame {
 		successIcon = new ImageIcon("src/success-green-icon.jpg");
 		failedIcon = new ImageIcon("src/failed-icon.png");
 
+		// Tạo validator
+		validator = new Validator();
+		rules = new HashMap<String, String>();
+
 		// Tạo các panel layout
 		upPanel = new JPanel(new BorderLayout(10, 10));
 		downPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 10, 10));
@@ -120,6 +131,14 @@ public class StudentForm extends JFrame {
 		btnEdit = new JButton("Edit");
 		btnDelete = new JButton("Delete");
 		btnClear = new JButton("Clear");
+
+		///////////////////////////////////////////////
+
+		///////// Tạo rules /////////
+		rules.put("code", "required");
+		rules.put("name", "required");
+		rules.put("address", "required");
+		rules.put("point", "required | double");
 
 		///////////////////////////////////////////////
 
@@ -198,7 +217,7 @@ public class StudentForm extends JFrame {
 		btnEdit.setFocusable(false);
 		btnDelete.setFocusable(false);
 		btnClear.setFocusable(false);
-		
+
 		// Table
 		table.setPreferredScrollableViewportSize(new Dimension(600, 150));
 		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
@@ -233,11 +252,7 @@ public class StudentForm extends JFrame {
 
 		// Xử lý sự kiện cho button Delete
 		btnDelete.addActionListener(e -> {
-			int option = JOptionPane.showConfirmDialog(null, "Are you sure to delete?", "Confirm",
-					JOptionPane.YES_NO_OPTION);
-			if (option == JOptionPane.YES_OPTION) {
-				deleteStudent();
-			}
+			deleteStudent();
 		});
 
 		// Xử lý sự kiện cho button Clear
@@ -304,7 +319,24 @@ public class StudentForm extends JFrame {
 		String code = txtCode.getText();
 		String name = txtName.getText();
 		String address = txtAddress.getSelectedItem().toString();
-		double point = Double.parseDouble(txtPoint.getText());
+		String strPoint = txtPoint.getText();
+
+		// Tạo data
+		Map<String, String> data = new HashMap<String, String>();
+		data.put("code", code);
+		data.put("name", name);
+		data.put("address", address);
+		data.put("point", String.valueOf(strPoint));
+
+		// Validate data
+		if (!validator.validate(rules, data)) {
+			String message = validator.getMessage();
+			JOptionPane.showMessageDialog(null, message, "Failed",
+					JOptionPane.ERROR_MESSAGE, failedIcon);
+			return;
+		}
+
+		double point = Double.parseDouble(strPoint);
 
 		Student student = new Student(code, name, address, point);
 		if (student.createStudent()) {
@@ -317,6 +349,7 @@ public class StudentForm extends JFrame {
 		} else {
 			JOptionPane.showMessageDialog(null, "Create failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
 		}
+
 	}
 
 	// Edit student
@@ -325,7 +358,29 @@ public class StudentForm extends JFrame {
 		String code = txtCode.getText();
 		String name = txtName.getText();
 		String address = txtAddress.getSelectedItem().toString();
-		double point = Double.parseDouble(txtPoint.getText());
+		String strPoint = txtPoint.getText();
+
+		// Tạo data
+		Map<String, String> data = new HashMap<String, String>();
+		data.put("code", code);
+		data.put("name", name);
+		data.put("address", address);
+		data.put("point", String.valueOf(strPoint));
+
+		// Validate data
+		if (Validator.isBlank(id)) {
+			JOptionPane.showMessageDialog(null, "No student selected!", "Failed", JOptionPane.ERROR_MESSAGE,
+					failedIcon);
+			return;
+		}
+
+		if (!validator.validate(rules, data)) {
+			String message = validator.getMessage();
+			JOptionPane.showMessageDialog(null, message, "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
+			return;
+		}
+
+		double point = Double.parseDouble(strPoint);
 
 		Student student = new Student(code, name, address, point);
 		if (student.editStudent(id)) {
@@ -338,11 +393,26 @@ public class StudentForm extends JFrame {
 		} else {
 			JOptionPane.showMessageDialog(null, "Edit failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
 		}
+
 	}
 
 	// Delete student
 	private void deleteStudent() {
 		String id = lbID.getText();
+
+		if (Validator.isBlank(id)) {
+			JOptionPane.showMessageDialog(null, "Failed! Please select a student to delete.", "Failed",
+					JOptionPane.ERROR_MESSAGE, failedIcon);
+			return;
+		}
+
+		String question = "Are you sure to delete? (id = " + id + ")";
+
+		int option = JOptionPane.showConfirmDialog(null, question, "Confirm", JOptionPane.YES_NO_OPTION);
+		if (option != JOptionPane.YES_OPTION) {
+			return;
+		}
+
 		if (Student.deleteStudent(id)) {
 			JOptionPane.showMessageDialog(null, "Delete success", "Success", JOptionPane.INFORMATION_MESSAGE,
 					successIcon);

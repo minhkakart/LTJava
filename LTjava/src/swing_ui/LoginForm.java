@@ -16,6 +16,8 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
+import connectMySQL.ConnectSQL;
+
 public class LoginForm extends JFrame {
 
 	/**
@@ -42,7 +44,7 @@ public class LoginForm extends JFrame {
 
 	private void initComponents() {
 		connect.setConnection("jdbc:mysql://localhost:3306/swing_ui", "root", "");
-		
+
 		this.setIconImage(new ImageIcon("src/ei-ico.jpg").getImage());
 		this.setLayout(new GridLayout(0, 1));
 
@@ -72,7 +74,6 @@ public class LoginForm extends JFrame {
 			try {
 				handleLogin();
 			} catch (SQLException e1) {
-				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			}
 		});
@@ -95,20 +96,19 @@ public class LoginForm extends JFrame {
 
 			String username = usernameField.getText();
 			String password = String.valueOf(passwordField.getPassword());
-			
+
 			PreparedStatement stmt = con.prepareStatement("SELECT * FROM users WHERE username = ? AND password = ?");
 			stmt.setString(1, username);
 			stmt.setString(2, password);
-			
-            ResultSet res = stmt.executeQuery();
-            
+
+			ResultSet res = stmt.executeQuery();
+
 			if (res.next()) {
 				this.dispose();
 				new StudentForm();
 			} else {
 				JOptionPane.showMessageDialog(this, "Login failed!");
 			}
-			
 
 		} else {
 			System.out.println("Not connected");

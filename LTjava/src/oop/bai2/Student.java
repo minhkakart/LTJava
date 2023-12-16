@@ -4,23 +4,23 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.SQLException;
 
-import swing_ui.ConnectSQL;
+import connectMySQL.ConnectSQL;
 
 public class Student {
 	private String code;
 	private String name;
 	private String birthPlace;
 	private double point;
-	
+
 	private static ConnectSQL connection = new ConnectSQL("jdbc:mysql://localhost:3306/swing_ui", "root", "");
-	
+
 	public Student() {
 		code = "";
 		name = "";
 		birthPlace = "";
 		point = 0;
 	}
-	
+
 	public Student(String code, String name, String birthPlace, double point) {
 		this.code = code;
 		this.name = name;
@@ -59,7 +59,7 @@ public class Student {
 	public void setPoint(double point) {
 		this.point = point;
 	}
-	
+
 	public String toString() {
 		return "Ma sinh vien: " + code + "\nHo ten: " + name + "\nNoi sinh: " + birthPlace + "\nDiem: " + point;
 	}
@@ -86,14 +86,14 @@ public class Student {
 			e.printStackTrace();
 			return false;
 		}
-		
+
 	}
 
 	public boolean editStudent(String id) {
 		Connection con = connection.getConnection();
 		try {
-			PreparedStatement stmt = con.prepareStatement(
-					"UPDATE students SET code = ?, name = ?, birthPlace = ?, point = ? WHERE id = ?");
+			PreparedStatement stmt = con
+					.prepareStatement("UPDATE students SET code = ?, name = ?, birthPlace = ?, point = ? WHERE id = ?");
 			stmt.setString(1, this.code);
 			stmt.setString(2, this.name);
 			stmt.setString(3, this.birthPlace);
@@ -113,7 +113,7 @@ public class Student {
 		}
 	}
 
-	public static boolean deleteStudent( String id) {
+	public static boolean deleteStudent(String id) {
 		Connection con = connection.getConnection();
 		try {
 			PreparedStatement stmt = con.prepareStatement("DELETE FROM students WHERE id = ?");
@@ -131,5 +131,5 @@ public class Student {
 			return false;
 		}
 	}
-	
+
 }
