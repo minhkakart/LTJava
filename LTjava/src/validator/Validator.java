@@ -14,6 +14,8 @@ public class Validator {
 	public static final int CHAR = 6;
 	public static final int NOT_NULL = 7;
 	public static final int EMAIL = 8;
+	public static final int MIN = 9;
+	public static final int MAX = 10;
 
 	private Map<String, String> rules;
 	private Map<String, String> data;
@@ -39,6 +41,8 @@ public class Validator {
 		this.mappedRules.put("char", CHAR);
 		this.mappedRules.put("not_null", NOT_NULL);
 		this.mappedRules.put("email", EMAIL);
+		this.mappedRules.put("min", MIN);
+		this.mappedRules.put("max", MAX);
 	}
 
 	/**
@@ -54,6 +58,7 @@ public class Validator {
 		for (String key : keys) {
 			String[] ruleList = this.rules.get(key).replaceAll(" ", "").split("\\|");
 			for (String rule : ruleList) {
+				
 				if (!validateRule(this.mappedRules.get(rule), this.data.get(key))) {
 					message = key + ": " + message;
 					valid = true;
@@ -78,24 +83,33 @@ public class Validator {
 		this.isValid = true;
 
 		Set<String> keys = this.data.keySet();
-		boolean valid = false;
+		boolean valid = true;
 		for (String key : keys) {
 			String[] ruleList = this.rules.get(key).replaceAll(" ", "").split("\\|");
 			for (String rule : ruleList) {
-				if (!validateRule(this.mappedRules.get(rule), this.data.get(key))) {
-					message = key + ": " + message;
-					valid = true;
-					break;
+				if (rule.contains(":")) {
+					String[] params = rule.split(":");
+					if (!validateRule(this.mappedRules.get(params[0]), this.data.get(key), params[1])) {
+						message = key + ": " + message;
+						valid = false;
+						break;
+					}
+				} else {
+					if (!validateRule(this.mappedRules.get(rule), this.data.get(key))) {
+						message = key + ": " + message;
+						valid = false;
+						break;
+					}
 				}
 			}
-			if (valid) {
+			if (!valid) {
 				break;
 			}
 		}
 		return isValid;
 	}
 
-	private boolean validateRule(Integer rule, String data) {
+	private boolean validateRule(Integer rule, String data, String... params) {
 
 		switch (rule) {
 		case REQUIRED:
@@ -161,6 +175,46 @@ public class Validator {
 				return false;
 			}
 			break;
+		case MIN:
+			if (params.length == 0) {
+				message = "Invalid rule params length 0";
+				isValid = false;
+				return false;
+			}
+			if (isNumeric(data)) {
+				if (Double.parseDouble(data) < Double.parseDouble(params[0])) {
+					isValid = false;
+					message = "field value is less than " + params[0];
+					return false;
+				}
+			} else {
+				if (data.length() < Integer.parseInt(params[0])) {
+					isValid = false;
+					message = "field length is less than " + params[0];
+					return false;
+				}
+			}
+			break;
+			case MAX:
+				if (params.length == 0) {
+					message = "Invalid rule";
+					isValid = false;
+					return false;
+				}
+				if (isNumeric(data)) {
+					if (Double.parseDouble(data) > Double.parseDouble(params[0])) {
+						isValid = false;
+						message = "field value is greater than " + params[0];
+						return false;
+					}
+				} else {
+					if (data.length() > Integer.parseInt(params[0])) {
+						isValid = false;
+						message = "field length is greater than " + params[0];
+						return false;
+					}
+				}
+				break;
 		default:
 			message = "Invalid rule";
 			isValid = false;
@@ -176,21 +230,36 @@ public class Validator {
 		if (isBlank(str)) {
 			return false;
 		}
-		return str.matches("-?\\d+(\\.\\d+)?");
+		try {
+			Double.parseDouble(str);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
 	}
 
 	public static boolean isInteger(String str) {
 		if (isBlank(str)) {
 			return false;
 		}
-		return str.matches("-?\\d+");
+		try {
+			Integer.parseInt(str);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
 	}
 
 	public static boolean isDouble(String str) {
 		if (isBlank(str)) {
 			return false;
 		}
-		return str.matches("-?\\d+\\.\\d+");
+		try {
+			Double.parseDouble(str);
+			return true;
+		} catch (NumberFormatException e) {
+			return false;
+		}
 	}
 
 	public static boolean isBoolean(String str) {
@@ -204,14 +273,14 @@ public class Validator {
 		if (isBlank(str)) {
 			return false;
 		}
-		return str.matches("\".*\"");
+		return str.length() > 1;
 	}
 
 	public static boolean isChar(String str) {
 		if (isBlank(str)) {
 			return false;
 		}
-		return str.matches("\'.\'");
+		return str.length() == 1;
 	}
 
 	public static boolean isNull(String str) {

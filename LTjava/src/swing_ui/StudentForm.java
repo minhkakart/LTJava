@@ -138,7 +138,7 @@ public class StudentForm extends JFrame {
 		rules.put("code", "required");
 		rules.put("name", "required");
 		rules.put("address", "required");
-		rules.put("point", "required | double");
+		rules.put("point", "required | numeric | min:0 | max:10");
 
 		///////////////////////////////////////////////
 
