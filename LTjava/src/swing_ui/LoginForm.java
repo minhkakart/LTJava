@@ -3,6 +3,8 @@ package swing_ui;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -75,6 +77,17 @@ public class LoginForm extends JFrame {
 				handleLogin();
 			} catch (SQLException e1) {
 				e1.printStackTrace();
+			}
+		});
+		loginButton.addKeyListener(new KeyAdapter() {
+			public void keyPressed(KeyEvent e) {
+				if (e.getKeyCode() == KeyEvent.VK_ENTER) {
+					try {
+						handleLogin();
+					} catch (SQLException e1) {
+						e1.printStackTrace();
+					}
+				}
 			}
 		});
 

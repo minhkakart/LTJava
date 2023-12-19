@@ -16,15 +16,13 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.JTable;
 import javax.swing.JTextField;
-import javax.swing.ListSelectionModel;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.DefaultTableModel;
 
+import swing_template.TableModelEditable;
 import connectMySQL.ConnectSQL;
 import oop.bai2.Student;
+import swing_template.ScrollTable;
 import validator.Validator;
 import drag.Panel;
 
@@ -67,11 +65,9 @@ public class StudentForm extends JFrame {
 	JButton btnDelete;
 	JButton btnClear;
 
-	JTable table;
-	JScrollPane scrollPane;
 	Vector<String> tableHeader;
-	DefaultTableModel tableModel;
-	ListSelectionModel listSelectionModel;
+	ScrollTable scrollTable;
+	TableModelEditable tableModel;
 
 	private final int WIDTH = 720;
 	private final int HEIGHT = 500;
@@ -131,6 +127,11 @@ public class StudentForm extends JFrame {
 		btnEdit = new JButton("Edit");
 		btnDelete = new JButton("Delete");
 		btnClear = new JButton("Clear");
+		
+		// Tạo table
+		tableHeader = new Vector<String>();
+		tableModel = new TableModelEditable(tableHeader, 0);
+		scrollTable = new ScrollTable();
 
 		///////////////////////////////////////////////
 
@@ -172,15 +173,9 @@ public class StudentForm extends JFrame {
 
 		///////// Layout downPanel /////////
 		// Xây dựng table
-		tableHeader = new Vector<String>();
-		scrollPane = new JScrollPane();
-		tableHeader.add("ID");
-		tableHeader.add("Code");
-		tableHeader.add("Name");
-		tableHeader.add("Address");
-		tableHeader.add("Point");
-		newTable();
-		downPanel.add(scrollPane);
+		
+		
+		downPanel.add(scrollTable);
 
 		///////////////////////////////////////////////
 
@@ -219,9 +214,7 @@ public class StudentForm extends JFrame {
 		btnClear.setFocusable(false);
 
 		// Table
-		table.setPreferredScrollableViewportSize(new Dimension(600, 150));
-		table.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
+		
 		///////////////////////////////////////////////
 
 		// Thêm 2 panel chính vào frame
@@ -231,6 +224,12 @@ public class StudentForm extends JFrame {
 		///////////////////////////////////////////////
 
 		///////// Tạo dữ liệu /////////
+		// Load data cho table
+		initTableHeader();
+		scrollTable.setModel(tableModel);
+		scrollTable.setDimention(new Dimension(600, 150));
+		loadTableData();
+		
 		// Tạo dữ liệu cho combobox
 		initAddress();
 
@@ -238,7 +237,9 @@ public class StudentForm extends JFrame {
 
 		///////// Xử lí sự kiện /////////
 		// Set table listener
-		setTableListener();
+		scrollTable.setListener(e -> {
+			listSelectionModelHandler(e);
+		});
 
 		// Xử lý sự kiện cho button Create
 		btnCreate.addActionListener(e -> {
@@ -261,6 +262,15 @@ public class StudentForm extends JFrame {
 		});
 
 	}
+	
+	// Init table header
+		private void initTableHeader() {
+			tableHeader.add("ID");
+			tableHeader.add("Code");
+			tableHeader.add("Name");
+			tableHeader.add("Address");
+			tableHeader.add("Point");
+		}
 
 	// Add address to combobox
 	private void initAddress() {
@@ -289,29 +299,13 @@ public class StudentForm extends JFrame {
 				JOptionPane.showMessageDialog(null, "Error: ResultSet is null");
 				return;
 			} else {
-				while (res.next()) {
-					Vector<String> row = new Vector<String>();
-					row.add(res.getString(1));
-					row.add(res.getString(2));
-					row.add(res.getString(3));
-					row.add(res.getString(4));
-					row.add(res.getString(5));
-					tableModel.addRow(row);
-				}
+				tableModel.setRowCount(0);
+				scrollTable.setDataFromResultSet(res);
 			}
 
 		} catch (Exception e) {
 			JOptionPane.showMessageDialog(null, "Error: " + e.getMessage());
 		}
-	}
-
-	// Clear table and load new data to table
-	private void newTable() {
-		tableModel = new DefaultTableModel(tableHeader, 0);
-		table = new JTable(tableModel);
-		loadTableData();
-		table.setPreferredScrollableViewportSize(new Dimension(600, 150));
-		scrollPane.setViewportView(table);
 	}
 
 	// Create new student
@@ -331,8 +325,7 @@ public class StudentForm extends JFrame {
 		// Validate data
 		if (!validator.validate(rules, data)) {
 			String message = validator.getMessage();
-			JOptionPane.showMessageDialog(null, message, "Failed",
-					JOptionPane.ERROR_MESSAGE, failedIcon);
+			JOptionPane.showMessageDialog(null, message, "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
 			return;
 		}
 
@@ -342,10 +335,8 @@ public class StudentForm extends JFrame {
 		if (student.createStudent()) {
 			JOptionPane.showMessageDialog(null, "Create success", "Success", JOptionPane.INFORMATION_MESSAGE,
 					successIcon);
-			clearTableListener();
-			newTable();
 			clearTextFields();
-			setTableListener();
+			loadTableData();
 		} else {
 			JOptionPane.showMessageDialog(null, "Create failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
 		}
@@ -386,10 +377,8 @@ public class StudentForm extends JFrame {
 		if (student.editStudent(id)) {
 			JOptionPane.showMessageDialog(null, "Edit success", "Success", JOptionPane.INFORMATION_MESSAGE,
 					successIcon);
-			clearTableListener();
-			newTable();
 			clearTextFields();
-			setTableListener();
+			loadTableData();
 		} else {
 			JOptionPane.showMessageDialog(null, "Edit failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
 		}
@@ -416,10 +405,8 @@ public class StudentForm extends JFrame {
 		if (Student.deleteStudent(id)) {
 			JOptionPane.showMessageDialog(null, "Delete success", "Success", JOptionPane.INFORMATION_MESSAGE,
 					successIcon);
-			clearTableListener();
-			newTable();
 			clearTextFields();
-			setTableListener();
+			loadTableData();
 		} else {
 			JOptionPane.showMessageDialog(null, "Delete failed", "Failed", JOptionPane.ERROR_MESSAGE, failedIcon);
 		}
@@ -437,30 +424,15 @@ public class StudentForm extends JFrame {
 		txtCode.requestFocus();
 	}
 
-///////// Combo xử lí sự kiện cho table /////////
-
-	private void clearTableListener() {
-		listSelectionModel.removeListSelectionListener(table);
-	}
-
-	private void setTableListener() {
-		listSelectionModel = table.getSelectionModel();
-		listSelectionModel.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-
-		// Add event cho table
-		listSelectionModel.addListSelectionListener(e -> {
-			listSelectionModelHandler(e);
-		});
-	}
-
+///////// Xử lí sự kiện cho table /////////
 	private void listSelectionModelHandler(ListSelectionEvent e) {
-		if (!e.getValueIsAdjusting()) {
-			int row = table.getSelectedRow();
-			lbID.setText(table.getValueAt(row, 0).toString());
-			txtCode.setText(table.getValueAt(row, 1).toString());
-			txtName.setText(table.getValueAt(row, 2).toString());
-			txtAddress.setSelectedItem(table.getValueAt(row, 3).toString());
-			txtPoint.setText(table.getValueAt(row, 4).toString());
+		int row = scrollTable.getSelectedRow();
+		if (!e.getValueIsAdjusting() && row != -1) {
+			lbID.setText(scrollTable.getValueAt(row, 0).toString());
+			txtCode.setText(scrollTable.getValueAt(row, 1).toString());
+			txtName.setText(scrollTable.getValueAt(row, 2).toString());
+			txtAddress.setSelectedItem(scrollTable.getValueAt(row, 3).toString());
+			txtPoint.setText(scrollTable.getValueAt(row, 4).toString());
 		}
 	}
 
