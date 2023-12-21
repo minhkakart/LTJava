@@ -33,8 +33,19 @@ public class ConnectSQL {
 	public Connection getConnection() {
 		return this.con;
 	}
+	
+	public int executeUpdate(String sql) {
+		int res = 0;
+		try {
+			Statement stmt = con.createStatement();
+			res = stmt.executeUpdate(sql);
+		} catch (SQLException e) {
+			System.out.println("SQL Exception " + e);
+		}
+		return res;
+	}
 
-	public ResultSet getAllData(String table) {
+	public ResultSet getAllDataTable(String table) {
 		ResultSet res = null;
 		String sql = "SELECT * FROM " + table;
 		try {
@@ -70,6 +81,19 @@ public class ConnectSQL {
 		} catch (SQLException e) {
 			System.out.println("SQL Exception " + e);
 		}
+		return res;
+	}
+
+	public ResultSet executeQuery(String string) {
+		// TODO Auto-generated method stub
+		ResultSet res = null;
+		try {
+			Statement stmt = con.createStatement();
+			res = stmt.executeQuery(string);
+		} catch (SQLException e) {
+			System.out.println("SQL Exception " + e);
+		}
+		
 		return res;
 	}
 }

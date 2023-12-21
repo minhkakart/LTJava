@@ -293,7 +293,7 @@ public class StudentForm extends JFrame {
 
 	// Load data from database to table
 	private void loadTableData() {
-		ResultSet res = connect.getAllData("students");
+		ResultSet res = connect.getAllDataTable("students");
 		try {
 			if (res == null) {
 				JOptionPane.showMessageDialog(null, "Error: ResultSet is null");

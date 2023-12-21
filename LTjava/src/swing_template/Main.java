@@ -1,11 +1,13 @@
 package swing_template;
 
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.JButton;
-import javax.swing.JFrame;
+import javax.swing.JPanel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
@@ -41,6 +43,7 @@ public class Main {
 		
 		
 		ScrollTable table = new ScrollTable(model);
+		table.setDimention(new Dimension(600, 100));
 		
 		JButton button2 = new JButton("Change to Model 2");
 		button2.addActionListener(new ActionListener() {
@@ -83,16 +86,20 @@ public class Main {
 			}
         });
 		
-		JFrame frame = new JFrame("Swing Template");
-		frame.setLayout(new java.awt.FlowLayout());
-		frame.add(table);
-		frame.add(button1);
-		frame.add(button2);
-		frame.add(deleteDatamodel2);
-		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		frame.setSize(400, 480);
-		frame.setLocationRelativeTo(null);
-		frame.setVisible(true);
+		JPanel sec3 = new JPanel();
+		sec3.add(new JButton("Button 1"));
+		
+		FormSections form = new FormSections();
+		form.setFormTitle("Swing Template");
+		form.getTitleLabel().setFont(new Font("Times New Roman", Font.PLAIN, 20));
+		form.addSection(sec3);
+		form.setSize(600, 400);
+		form.getTablePanel().setLayout(new java.awt.BorderLayout());
+		form.getTablePanel().add(table);
+		form.getSection1Panel().add(button1, "North");
+		form.getSection1Panel().add(button2, "South");
+		form.getSection1Panel().add(deleteDatamodel2, "East");
+		form.setVisible(true);
 	}
 
 }

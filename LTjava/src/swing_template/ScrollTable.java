@@ -19,11 +19,12 @@ public final class ScrollTable extends JScrollPane {
 	private JTable table;
 	private TableModelEditable model;
 
-	private final int DEFAULT_WIDTH = 320;
-	private final int DEFAULT_HEIGHT = 240;
+	private final int DEFAULT_WIDTH = 480;
+	private final int DEFAULT_HEIGHT = 200;
 
 	public ScrollTable() {
 		super();
+		this.model = new TableModelEditable();
 		initialize();
 	}
 
@@ -74,6 +75,10 @@ public final class ScrollTable extends JScrollPane {
 
 	public Object getValueAt(int row, int column) {
 		return this.table.getValueAt(row, column);
+	}
+	
+	public void setSize(Dimension d) {
+		this.table.setPreferredScrollableViewportSize(d);
 	}
 
 }

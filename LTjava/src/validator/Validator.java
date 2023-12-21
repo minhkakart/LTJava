@@ -54,18 +54,26 @@ public class Validator {
 		this.isValid = true;
 
 		Set<String> keys = this.data.keySet();
-		boolean valid = false;
+		boolean valid = true;
 		for (String key : keys) {
 			String[] ruleList = this.rules.get(key).replaceAll(" ", "").split("\\|");
 			for (String rule : ruleList) {
-				
-				if (!validateRule(this.mappedRules.get(rule), this.data.get(key))) {
-					message = key + ": " + message;
-					valid = true;
-					break;
+				if (rule.contains(":")) {
+					String[] params = rule.split(":");
+					if (!validateRule(this.mappedRules.get(params[0]), this.data.get(key), params[1])) {
+						message = key + ": " + message;
+						valid = false;
+						break;
+					}
+				} else {
+					if (!validateRule(this.mappedRules.get(rule), this.data.get(key))) {
+						message = key + ": " + message;
+						valid = false;
+						break;
+					}
 				}
 			}
-			if (valid) {
+			if (!valid) {
 				break;
 			}
 		}
