@@ -81,4 +81,14 @@ public final class ScrollTable extends JScrollPane {
 		this.table.setPreferredScrollableViewportSize(d);
 	}
 
+	public int getRowCount() {
+		// TODO Auto-generated method stub
+		return this.table.getRowCount();
+	}
+
+	public void clearSelection() {
+		// TODO Auto-generated method stub
+		this.table.clearSelection();
+	}
+
 }

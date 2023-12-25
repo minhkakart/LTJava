@@ -45,7 +45,7 @@ public class LoginForm extends JFrame {
 	}
 
 	private void initComponents() {
-		connect.setConnection("jdbc:mysql://localhost:3306/swing_ui", "root", "");
+		connect.setConnection("swing_ui", "root", "");
 
 		this.setIconImage(new ImageIcon("src/ei-ico.jpg").getImage());
 		this.setLayout(new GridLayout(0, 1));

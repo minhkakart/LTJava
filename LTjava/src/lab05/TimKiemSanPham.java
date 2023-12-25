@@ -50,7 +50,7 @@ public class TimKiemSanPham {
 
 	public static void main(String[] args) {
 		
-		connectSQL = new ConnectSQL("jdbc:mysql://localhost:3306/qlsanpham", "root", "");
+		connectSQL = new ConnectSQL("qlsanpham", "root", "");
 		
 		validator = new Validator();
 		validator.addRule("tensp", "required");

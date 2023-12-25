@@ -89,7 +89,7 @@ public class StudentForm extends JFrame {
 	private void initComponents() {
 		// Thay đổi thông tin kết nối tại đây
 		connect = new ConnectSQL();
-		connect.setConnection("jdbc:mysql://localhost:3306/swing_ui", "root", "");
+		connect.setConnection("swing_ui", "root", "");
 
 		// Tạo icon
 		successIcon = new ImageIcon("src/success-green-icon.jpg");

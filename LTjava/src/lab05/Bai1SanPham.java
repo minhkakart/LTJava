@@ -60,7 +60,7 @@ public class Bai1SanPham {
 
 	public static void main(String[] args) {
 
-		connector = new ConnectSQL("jdbc:mysql://localhost:3306/qlsanpham", "root", "");
+		connector = new ConnectSQL("qlsanpham", "root", "");
 
 		validator = new Validator();
 		validator.addRule("masp", "required|max:10");

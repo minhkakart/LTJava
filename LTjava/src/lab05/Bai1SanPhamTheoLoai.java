@@ -21,7 +21,7 @@ import swing_template.TableModelEditable;
 
 public class Bai1SanPhamTheoLoai {
 	
-	static ConnectSQL connector = new ConnectSQL("jdbc:mysql://localhost:3306/qlsanpham", "root", "");
+	static ConnectSQL connector = new ConnectSQL("qlsanpham", "root", "");
 
 	static FormSections form;
 	static Vector<String> columnNames;

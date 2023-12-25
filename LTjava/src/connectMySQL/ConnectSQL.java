@@ -8,20 +8,25 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class ConnectSQL {
-
+	
+	private static final String DATABASE_NAME = "jdbc:mysql://localhost:3306/";
+	
 	Connection con = null;
 
 	public ConnectSQL() {
 	}
 
 	public ConnectSQL(String databaseName, String user, String pass) {
+		
 		setConnection(databaseName, user, pass);
 	}
 
 	public void setConnection(String databaseName, String user, String pass) {
+		StringBuilder databaseUrl = new StringBuilder(DATABASE_NAME);
+		databaseUrl.append(databaseName);
 		try {
 			Class.forName("com.mysql.cj.jdbc.Driver");
-			con = DriverManager.getConnection(databaseName, user, pass);
+			con = DriverManager.getConnection(databaseUrl.toString(), user, pass);
 			System.out.println("Connection Success");
 		} catch (ClassNotFoundException e) {
 			System.out.println("Class not found " + e);

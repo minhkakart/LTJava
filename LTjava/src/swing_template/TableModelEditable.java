@@ -24,6 +24,9 @@ public class TableModelEditable extends DefaultTableModel {
 	public TableModelEditable(Vector<?> columnNames, int rowCount) {
         super.setDataVector(newVector(rowCount), columnNames);
     }
+	public TableModelEditable(Vector<?> columnNames) {
+        super.setDataVector(newVector(0), columnNames);
+    }
 	
 	public TableModelEditable() {
 		super();

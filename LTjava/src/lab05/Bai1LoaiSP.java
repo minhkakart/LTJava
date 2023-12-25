@@ -51,7 +51,7 @@ public class Bai1LoaiSP {
 
 	public static void main(String[] args) {
 		// TODO Auto-generated method stub
-		connector.setConnection("jdbc:mysql://localhost:3306/qlsanpham", "root", "");
+		connector.setConnection("qlsanpham", "root", "");
 		con = connector.getConnection();
 		mappedRules.put("maloai", "required|max:10");
 		mappedRules.put("tenloai", "required|max:50");
