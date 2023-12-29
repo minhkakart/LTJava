@@ -80,6 +80,10 @@ public final class ScrollTable extends JScrollPane {
 	public void setSize(Dimension d) {
 		this.table.setPreferredScrollableViewportSize(d);
 	}
+	
+	public JTable getTable() {
+		return this.table;
+	}
 
 	public int getRowCount() {
 		// TODO Auto-generated method stub

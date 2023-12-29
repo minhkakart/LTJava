@@ -224,7 +224,7 @@ public class LopHoc extends JFrame {
 		
 		btnCurrentList.addActionListener(e -> {
 //			new SinhVien(currentMSLop).setVisible(true);
-//			this.setVisible(false);
+			this.setVisible(false);
 			JDialog dssv = new JDialog(this, "Sinh viên", true);
 			dssv.setContentPane(new SinhVien(currentMSLop));
 			dssv.pack();
@@ -232,6 +232,7 @@ public class LopHoc extends JFrame {
 			dssv.setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
 			dssv.setLocationRelativeTo(this);
 			dssv.setVisible(true);
+			this.setVisible(true);
 			
 		});
 		

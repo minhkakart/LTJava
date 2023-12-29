@@ -15,6 +15,12 @@ public class ConnectSQL {
 
 	public ConnectSQL() {
 	}
+	
+	public ConnectSQL(String databaseName) {
+		
+		setConnection(databaseName, "root", "");
+	}
+
 
 	public ConnectSQL(String databaseName, String user, String pass) {
 		
@@ -29,9 +35,9 @@ public class ConnectSQL {
 			con = DriverManager.getConnection(databaseUrl.toString(), user, pass);
 			System.out.println("Connection Success");
 		} catch (ClassNotFoundException e) {
-			System.out.println("Class not found " + e);
+			e.printStackTrace();
 		} catch (SQLException e) {
-			System.out.println("SQL Exception " + e);
+			e.printStackTrace();
 		}
 	}
 
@@ -45,7 +51,7 @@ public class ConnectSQL {
 			Statement stmt = con.createStatement();
 			res = stmt.executeUpdate(sql);
 		} catch (SQLException e) {
-			System.out.println("SQL Exception " + e);
+			e.printStackTrace();
 		}
 		return res;
 	}
@@ -57,7 +63,7 @@ public class ConnectSQL {
 			Statement stmt = con.createStatement();
 			res = stmt.executeQuery(sql);
 		} catch (SQLException e) {
-			System.out.println("SQL Exception " + e);
+			e.printStackTrace();
 		}
 		return res;
 	}
@@ -70,7 +76,7 @@ public class ConnectSQL {
 			stmt.setString(2, id);
 			res = stmt.executeQuery();
 		} catch (SQLException e) {
-			System.out.println("SQL Exception " + e);
+			e.printStackTrace();
 		}
 		return res;
 	}
@@ -84,7 +90,7 @@ public class ConnectSQL {
 			stmt.setString(3, value);
 			res = stmt.executeQuery();
 		} catch (SQLException e) {
-			System.out.println("SQL Exception " + e);
+			e.printStackTrace();
 		}
 		return res;
 	}
@@ -96,7 +102,7 @@ public class ConnectSQL {
 			Statement stmt = con.createStatement();
 			res = stmt.executeQuery(string);
 		} catch (SQLException e) {
-			System.out.println("SQL Exception " + e);
+			e.printStackTrace();
 		}
 		
 		return res;

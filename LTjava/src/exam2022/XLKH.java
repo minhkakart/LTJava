@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 
 import connectMySQL.ConnectSQL;
+import querry_builder.QuerryBuilder;
 
 public class XLKH {
 	
@@ -44,7 +45,8 @@ public class XLKH {
 	}
 	
 	public int insertKH(KhachHang kh) {
-		String sql = "INSERT INTO tbkhachhang(sotk, hoten, gt, diachi, sodu) VALUES(?, ?, ?, ?, ?)";
+//		String sql = "INSERT INTO tbkhachhang(sotk, hoten, gt, diachi, sodu) VALUES(?, ?, ?, ?, ?)";
+		String sql = new QuerryBuilder().insertInto("tbkhachhang", "sotk", "hoten", "gt", "diachi", "sodu").prepareValues(5).getQuerry();
 		
 		try {
 			PreparedStatement ps = this.getCon().prepareStatement(sql);
