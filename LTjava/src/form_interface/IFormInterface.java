@@ -24,4 +24,6 @@ public interface IFormInterface {
 	
 	public void handleExit();
 	
+	public void clear();
+	
 }

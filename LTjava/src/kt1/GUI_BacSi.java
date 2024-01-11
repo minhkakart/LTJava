@@ -344,4 +344,10 @@ public class GUI_BacSi extends JFrame implements IFormInterface {
 		// TODO Auto-generated method stub
 		
 	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
 }

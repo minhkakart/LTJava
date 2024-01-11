@@ -277,4 +277,10 @@ public class GUI_insertDog extends JFrame implements IFormInterface {
 		txtBirthYear.setText("");
 		comboBox.setSelectedIndex(0);
 	}
+
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
 }

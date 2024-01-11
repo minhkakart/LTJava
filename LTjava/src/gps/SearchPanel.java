@@ -141,4 +141,10 @@ public class SearchPanel extends JPanel implements IFormInterface {
 		
 	}
 
+	@Override
+	public void clear() {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
